@@ -1,13 +1,15 @@
 # Python_Sound_Recognition
 
-Bibliotecas:
-numpy (manipulação matemática)
-librosa (manipulação de áudio)
-numba (necessário para librosa)
-sklearn (treinamento do modelo)
-sounddevice (escuta ao vivo de áudio)
-scipy (necessário para sounddevice)
-clara ()
-pip install numpy librosa numba sklearn sounddevice scipy clara 
+Bibliotecas:<br><br>
+numpy (manipulação matemática)<br>
+librosa (manipulação de áudio)<br>
+numba (necessário para librosa)<br>
+sklearn (treinamento do modelo)<br>
+sounddevice (escuta ao vivo de áudio)<br>
+scipy (necessário para sounddevice)<br>
+clara ()<br>
+pip install numpy librosa numba sklearn sounddevice scipy clara <br><br><br>
+
+
 
 Trabalho final Telecom 2024.2.
