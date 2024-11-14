@@ -15,28 +15,25 @@ samples = "/Users/nikao/School/UFRJ/2024.2/Telecom/samples"
 import librosa
 import numpy as np
 from matplotlib import pyplot as plt
-import time as t 
-import wave
+import sounddevice as sd
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split, cross_val_score
+import os
+
 
 def model_train(samples):
     print("'model_train()' started.")
-    '''
-    #1
+    # 1
     # Carregar o arquivo de áudio
-    audio_path = 'audio/buzina.wav' #WAV ou MP3
-    y, sr = librosa.load(audio_path)
+    # audio_path = 'audio/buzina.wav' #WAV ou MP3
+    # y, sr = librosa.load(audio_path)
 
     # Extrair MFCCs (MFCCs = Mel-frequency cepstrum)
-    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-    print(mfccs.shape)  # (n_mfcc, frames)
-    '''
+    # mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+    # print(mfccs.shape)  # (n_mfcc, frames)
 
-
-    #2 - criação do modelo
-    from sklearn.ensemble import RandomForestClassifier
-    import librosa
-    import numpy as np
-    import os
+    # 2 - criação do modelo
 
     def extract_features(file_path):
         # Carrega o áudio (amostragem de 44.1kHz)
@@ -72,18 +69,9 @@ def model_train(samples):
     print(f"X: {X}")
     print(f"Y: {y}")
 
-
     #3 - divisão de dados
-    from sklearn.model_selection import train_test_split
-
     # Divida os dados em 80% para treinamento e 20% para teste
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-
-
-    #4 - treinamento do modelo
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.metrics import accuracy_score
 
     # Cria e treina o modelo
     model = RandomForestClassifier(n_estimators=100)
@@ -96,26 +84,18 @@ def model_train(samples):
     accuracy = accuracy_score(y_test, y_pred)
     print(f'Precisão: {accuracy * 100:.2f}%')
 
-
-
-    #5 - métricas do modelo (apenas para análise)
-    from sklearn.metrics import confusion_matrix, classification_report
-
+    # 5 - métricas do modelo (apenas para análise)
     print(confusion_matrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
 
     #5.1 - validação cruzada - Para garantir que o modelo esteja generalizando bem e não overfitting, você pode usar validação cruzada. (eu não sei q porra eh essa, ta falando q é opcional então...)
-    from sklearn.model_selection import cross_val_score
-
     scores = cross_val_score(model, X, y, cv=5)  # Validação cruzada 5-fold
     print(f'Média de precisão: {scores.mean() * 100:.2f}%')
     return model
 
+
 def audio_process():
-    #6 - processamento do áudio:
-    import sounddevice as sd
-    import numpy as np
-    import librosa
+    # 6 - processamento do áudio:
     print("Escolha o dispositivo de entrada:", sd.query_devices())
     device_id = int(input())
     
@@ -161,14 +141,13 @@ def audio_process():
         time_active = 10 #seconds
         sd.sleep(time_active*1000)  # Tempo de gravação em milissegundos
 
+
 audio_data_accumulated = []
+
+
 def teste_som(model):
     global audio_data_accumulated
-    #6 - processamento do áudio:
-    import sounddevice as sd
-    import numpy as np
-    import librosa
-    from sklearn.metrics import accuracy_score, classification_report
+    # 6 - processamento do áudio:
 
     print(f"Escolha o dispositivo de entrada:\n{sd.query_devices()}")
     device_id = int(input())
@@ -189,8 +168,6 @@ def teste_som(model):
 
     model = RandomForestClassifier()  # Substitua com o modelo que você treinou
     '''
-    
-    
 
     def classify_sound(audio_data):
         # Processa o áudio (extrai MFCCs ou outras características)
@@ -209,10 +186,8 @@ def teste_som(model):
 
         print(f"Som detectado: {predicted_class} com confiança de {confidence * 100:.4f}%")
 
-
         return prediction
-    
-        
+
     def callback(indata, frames, time, status,**kwargs):
         # Verifica se há erros
         if status:
@@ -238,24 +213,19 @@ def teste_som(model):
         # Calcula e imprime a média do áudio capturado
         mean_amplitude = np.mean(audio_data)
         print(f"Média do áudio capturado: {mean_amplitude}")
-        
-        
-        
-        
+
         audio_data_accumulated.extend(audio_data)
 
         # Aqui, você poderia passar as características extraídas para o seu modelo de ML
         #prediction = model.predict(mfccs)
         #print(f'Som detectado: {prediction}')
-        
-    
 
     # Configura a captura de áudio (44100 Hz, canal mono)
-    with sd.InputStream(callback=callback, device = device_id, channels=1, samplerate=44100):
+    with sd.InputStream(callback=callback, device=device_id, channels=1, samplerate=44100):
         print("Escutando... Pressione Ctrl+C para parar.")
         time_active = 1 #seconds
         sd.sleep(time_active*1000)
-        print("Terminado.") 
+        print("Terminado.")
         print(len(audio_data_accumulated))
         
     # Adiciona o novo bloco de áudio ao acumulador
@@ -273,6 +243,8 @@ def plot_spectrum(audio_data,sr):
     plt.ylabel("Amplitude")
     plt.title("Espectro de Frequência")
     plt.show()
+
+
 samples_to_collect = 44100
 
 # Verifica se acumulou amostras suficientes para o período desejado
@@ -282,6 +254,7 @@ if len(audio_data_accumulated) >= samples_to_collect:
     
     # Limpa o acumulador para reiniciar a coleta
     audio_data_accumulated = []
+
 
 def save_audio_to_wav(audio_data, sr):
     # Converte o áudio para 16-bit int
