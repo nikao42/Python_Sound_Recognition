@@ -1,0 +1,10 @@
+numpy
+matplotlib
+librosa
+wave
+scikit-learn
+sounddevice
+numba
+scipy
+clara
+tensorflow
